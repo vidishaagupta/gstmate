@@ -28,18 +28,23 @@ const generateHtml = (invoice: InvoiceData): string => {
   const businessGstin = invoice.businessGstin || 'GSTIN-PENDING';
   const businessState = invoice.businessState || 'Karnataka';
   const businessPhone = invoice.businessPhone || '';
-  const isSameState = invoice.clientId.state === businessState;
+  
+  const clientName = invoice.clientId?.name || 'Client Name';
+  const clientState = invoice.clientId?.state || 'State';
+  const clientEmail = invoice.clientId?.email || '';
+  
+  const isSameState = clientState === businessState;
 
   const itemsHtml = invoice.items.map(item => `
-    <tr>
-      <td class="description">
-        <div class="main">${item.description}</div>
-        <div class="sub">Standard service/product delivery</div>
+    <tr class="break-inside-avoid">
+      <td class="px-4 py-4 border-r border-gray-200">
+        <div class="font-bold text-gray-900">${item.description}</div>
+        <div class="text-[9px] text-gray-400 mt-0.5 uppercase font-medium tracking-tight">Standard product/service delivery</div>
       </td>
-      <td class="qty">${item.quantity}</td>
-      <td class="price">INR ${item.price.toLocaleString('en-IN')}</td>
-      <td class="gst">${item.gstRate}%</td>
-      <td class="total">INR ${(item.quantity * item.price).toLocaleString('en-IN')}</td>
+      <td class="px-4 py-4 text-center font-black text-gray-900 border-r border-gray-200">${item.quantity}</td>
+      <td class="px-4 py-4 text-right font-medium text-gray-700 border-r border-gray-200">${item.price.toLocaleString('en-IN')}</td>
+      <td class="px-4 py-4 text-center font-black text-indigo-600 border-r border-gray-200">${item.gstRate}%</td>
+      <td class="px-4 py-4 text-right font-black text-gray-900">${(item.quantity * item.price).toLocaleString('en-IN')}</td>
     </tr>
   `).join('');
 
@@ -48,9 +53,9 @@ const generateHtml = (invoice: InvoiceData): string => {
     if (gstAmount === 0) return '';
     const type = isSameState ? "GST" : "IGST";
     return `
-      <div class="summary-row">
-        <span class="label">${type} (${item.gstRate}%)</span>
-        <span class="value font-bold">INR ${gstAmount.toLocaleString('en-IN')}</span>
+      <div class="flex justify-between items-center text-sm mb-1 break-inside-avoid">
+        <span class="text-gray-500 font-bold uppercase tracking-widest text-[9px]">${type} (${item.gstRate}%)</span>
+        <span class="font-black text-gray-900">INR ${gstAmount.toLocaleString('en-IN')}</span>
       </div>
     `;
   }).join('');
@@ -60,266 +65,172 @@ const generateHtml = (invoice: InvoiceData): string => {
     <html>
     <head>
       <meta charset="utf-8">
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
       <style>
-        * { box-sizing: border-box; }
-        body { 
-          font-family: 'Inter', -apple-system, sans-serif; 
-          color: #111827; 
-          margin: 0; 
-          padding: 0; 
-          line-height: 1.5;
-          -webkit-print-color-adjust: exact;
+        @page {
+          size: A4;
+          margin: 0;
         }
-        .page {
-          padding: 50px;
-          min-height: 1120px;
+        body { 
+          font-family: 'Inter', sans-serif; 
+          -webkit-print-color-adjust: exact;
+          background-color: white;
+          margin: 0;
+          padding: 0;
+        }
+        .invoice-container {
+          width: 100%;
+          min-height: 100vh;
+          padding: 35px;
           display: flex;
           flex-direction: column;
+          box-sizing: border-box;
+          background-color: white;
         }
-        .top-accent {
-          height: 6px;
-          background-color: #4f46e5;
-          margin: -50px -50px 50px -50px;
-        }
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 60px;
-        }
-        .badge {
-          display: inline-block;
-          background: #4f46e5;
-          color: white;
-          padding: 6px 12px;
-          border-radius: 6px;
-          font-size: 10px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          margin-bottom: 24px;
-        }
-        .invoice-id {
-          font-size: 36px;
-          font-weight: 900;
-          letter-spacing: -0.02em;
-          margin: 0 0 8px 0;
-        }
-        .issue-date {
-          font-size: 12px;
-          font-weight: 500;
-          color: #6b7280;
-        }
-        .business-info { text-align: right; }
-        .business-name {
-          font-size: 20px;
-          font-weight: 800;
-          color: #4f46e5;
-          margin: 0 0 8px 0;
-        }
-        .business-details {
-          font-size: 11px;
-          color: #6b7280;
-          line-height: 1.6;
-        }
-        .gstin-box {
-          font-weight: 700;
-          color: #111827;
-          margin-top: 8px;
-        }
-        .details-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 40px;
-          margin-bottom: 60px;
-        }
-        .section-label {
-          font-size: 10px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: #9ca3af;
-          margin-bottom: 12px;
-        }
-        .billed-name {
-          font-size: 20px;
-          font-weight: 800;
-          margin: 0 0 4px 0;
-        }
-        .billed-details {
-          font-size: 12px;
-          color: #6b7280;
-        }
-        .payment-details {
-          text-align: right;
-          font-size: 14px;
-        }
-        .payment-details p { margin: 8px 0; }
-        .font-bold { font-weight: 700; }
-        
-        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
-        th {
-          text-align: left;
-          padding: 16px 0;
-          font-size: 10px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: #9ca3af;
-          border-bottom: 2px solid #f3f4f6;
-        }
-        td { padding: 24px 0; border-bottom: 1px solid #f9fafb; }
-        .description .main { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-        .description .sub { font-size: 10px; color: #9ca3af; }
-        .qty { text-align: center; font-weight: 700; }
-        .price { text-align: right; font-weight: 500; }
-        .gst { text-align: center; font-weight: 700; color: #4f46e5; }
-        .total { text-align: right; font-weight: 700; }
-        
-        .summary-container {
-          display: flex;
-          justify-content: flex-end;
-          margin-bottom: 60px;
-        }
-        .summary-box { width: 320px; }
-        .summary-row {
-          display: flex;
-          justify-content: space-between;
-          padding: 8px 0;
-          font-size: 14px;
-        }
-        .summary-row.discount { color: #4f46e5; }
-        .summary-divider {
-          border-top: 1px dashed #e5e7eb;
-          margin: 16px 0;
-        }
-        .grand-total-container {
-          border-top: 2px solid #f3f4f6;
-          padding-top: 24px;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-        }
-        .total-label {
-          font-size: 10px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: #4f46e5;
-          margin-bottom: 4px;
-        }
-        .total-sublabel { font-size: 10px; color: #9ca3af; }
-        .total-value {
-          font-size: 36px;
-          font-weight: 900;
-          letter-spacing: -0.04em;
-          color: #4f46e5;
-        }
-        
-        .footer {
-          margin-top: auto;
-          border-top: 4px solid #111827;
-          padding-top: 48px;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-        }
-        .terms-box { max-width: 400px; }
-        .terms-label { font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; }
-        .terms-text { font-size: 11px; color: #6b7280; line-height: 1.6; }
-        .thanks-box { text-align: right; }
-        .thanks-label { font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
-        .thanks-team { font-size: 14px; font-weight: 700; color: #4f46e5; }
+        .font-dancing { font-family: 'Dancing Script', cursive; }
+        .break-inside-avoid { page-break-inside: avoid; }
       </style>
     </head>
     <body>
-      <div class="page">
-        <div class="top-accent"></div>
-        
-        <div class="header">
-          <div>
-            <div class="badge">Official Tax Invoice</div>
-            <h1 class="invoice-id">#${invoice.invoiceNumber}</h1>
-            <div class="issue-date">Issued on ${new Date(invoice.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
-          </div>
-          <div class="business-info">
-            <h2 class="business-name">${businessName}</h2>
-            <div class="business-details">
-              <p>${businessAddress}</p>
-              <p>${businessState}, India</p>
-              <p class="gstin-box">GSTIN: ${businessGstin}</p>
+      <div class="invoice-container">
+        <!-- Top Border Accent -->
+        <div class="h-2.5 bg-indigo-600 -mx-10 -mt-10 mb-8"></div>
+
+        <!-- Header Section -->
+        <div class="flex justify-between items-start mb-12 break-inside-avoid">
+          <div class="relative">
+            <div class="inline-flex items-center px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-6 shadow-sm bg-indigo-600 text-white">
+              <div class="w-1.5 h-1.5 rounded-full bg-white mr-2"></div>
+              Official Tax Invoice
+            </div>
+            <h1 class="text-5xl font-black tracking-tighter mb-3 text-gray-900 leading-none">
+              #${invoice.invoiceNumber}
+            </h1>
+            <div class="flex items-center space-x-2">
+              <div class="w-8 h-[1px] bg-gray-300"></div>
+              <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">
+                Issued ${new Date(invoice.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </p>
             </div>
           </div>
-        </div>
-        
-        <div class="details-grid">
-          <div>
-            <div class="section-label">Billed To</div>
-            <h3 class="billed-name">${invoice.clientId.name}</h3>
-            <div class="billed-details">
-              <p>${invoice.clientId.state}, India</p>
-              ${invoice.clientId.email ? `<p style="color: #4f46e5; font-weight: 500;">${invoice.clientId.email}</p>` : ''}
-            </div>
-          </div>
-          <div class="payment-details">
-            <div class="section-label">Payment Details</div>
-            <p><span class="font-bold">Place of Supply:</span> ${invoice.clientId.state}</p>
-            <p><span class="font-bold">Due Date:</span> Upon Receipt</p>
-          </div>
-        </div>
-        
-        <table>
-          <thead>
-            <tr>
-              <th style="width: 45%;">Description</th>
-              <th style="text-align: center;">Qty</th>
-              <th style="text-align: right;">Price</th>
-              <th style="text-align: center;">GST %</th>
-              <th style="text-align: right;">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsHtml}
-          </tbody>
-        </table>
-        
-        <div class="summary-container">
-          <div class="summary-box">
-            <div class="summary-row">
-              <span class="label" style="color: #6b7280;">Subtotal</span>
-              <span class="value font-bold">INR ${invoice.subtotal.toLocaleString('en-IN')}</span>
-            </div>
-            ${invoice.discount > 0 ? `
-              <div class="summary-row discount">
-                <span class="label">Discount</span>
-                <span class="value font-bold">-INR ${invoice.discount.toLocaleString('en-IN')}</span>
+          
+          <div class="text-right">
+            <div class="bg-gray-900 text-white p-5 rounded-2xl inline-block shadow-xl">
+              <h2 class="text-xl font-black tracking-tight mb-1">${businessName}</h2>
+              <div class="text-[9px] text-gray-300 space-y-0.5 font-medium uppercase tracking-wider">
+                <p>${businessAddress}</p>
+                <p>${businessState}, India</p>
+                <div class="pt-2 mt-2 border-t border-gray-700">
+                  <p class="font-black text-white text-[10px]">GSTIN: ${businessGstin}</p>
+                </div>
               </div>
-            ` : ''}
-            
-            <div class="summary-divider"></div>
-            ${taxRowsHtml}
-            
-            <div class="grand-total-container">
-              <div>
-                <div class="total-label">Total Amount</div>
-                <div class="total-sublabel">Includes all taxes</div>
-              </div>
-              <div class="total-value">INR ${invoice.grandTotal.toLocaleString('en-IN')}</div>
             </div>
           </div>
         </div>
-        
-        <div class="footer">
-          <div class="terms-box">
-            <div class="terms-label">Terms & Notes</div>
-            <div class="terms-text">
-              Please process payment within 15 days. This is a computer-generated tax invoice and does not require a physical signature.
+
+        <!-- Details Grid -->
+        <div class="grid grid-cols-2 gap-10 mb-12 border-y border-gray-100 py-8 break-inside-avoid">
+          <div>
+            <p class="text-[8px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">Client Information</p>
+            <h3 class="text-xl font-black mb-1 text-gray-900">${clientName}</h3>
+            <div class="text-[9px] text-gray-500 space-y-0.5 font-bold uppercase tracking-widest">
+              <p class="flex items-center"><span class="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center mr-2 text-[7px]">📍</span>${clientState}, India</p>
+              ${clientEmail ? `<p class="flex items-center text-indigo-600"><span class="w-4 h-4 rounded-full bg-indigo-50 flex items-center justify-center mr-2 text-[7px]">✉️</span>${clientEmail}</p>` : ''}
             </div>
           </div>
-          <div class="thanks-box">
-            <div class="thanks-label">Thank You</div>
-            <div class="thanks-team">${businessName} Team</div>
+          
+          <div class="flex justify-end">
+            <div class="text-right">
+              <p class="text-[8px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">Payment Schedule</p>
+              <div class="space-y-3">
+                <div>
+                  <p class="text-[9px] font-black text-gray-400 uppercase">Place of Supply</p>
+                  <p class="text-xs font-black text-gray-900">${clientState}</p>
+                </div>
+                <div>
+                  <p class="text-[9px] font-black text-gray-400 uppercase">Payment Terms</p>
+                  <p class="text-xs font-black text-indigo-600">Due Upon Receipt</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="mb-10 overflow-hidden rounded-lg border border-gray-200 break-inside-avoid">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="text-left px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-900 border-r border-gray-200">DESCRIPTION</th>
+                <th class="text-center px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-900 border-r border-gray-200">QTY</th>
+                <th class="text-right px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-900 border-r border-gray-200">PRICE</th>
+                <th class="text-center px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-900 border-r border-gray-200">GST %</th>
+                <th class="text-right px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-900">TOTAL</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              ${itemsHtml}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="flex justify-end mb-12 break-inside-avoid">
+          <div class="w-full max-w-[320px] p-5 rounded-2xl bg-gray-50">
+            <div class="space-y-3">
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-gray-500 font-bold uppercase tracking-widest text-[9px]">Subtotal</span>
+                <span class="font-black text-gray-900">INR ${invoice.subtotal.toLocaleString('en-IN')}</span>
+              </div>
+              
+              ${invoice.discount > 0 ? `
+                <div class="flex justify-between items-center text-sm">
+                  <span class="text-gray-500 font-bold uppercase tracking-widest text-[9px]">Discount</span>
+                  <span class="font-black text-emerald-600">-INR ${invoice.discount.toLocaleString('en-IN')}</span>
+                </div>
+              ` : ''}
+
+              <div class="pt-3 border-t border-gray-200">
+                ${taxRowsHtml}
+              </div>
+
+              <div class="pt-5 border-t-2 border-gray-900 flex justify-between items-end">
+                <div>
+                  <p class="text-[9px] font-black uppercase tracking-widest text-indigo-600 mb-0.5">Grand Total</p>
+                  <p class="text-[8px] font-bold text-gray-400 uppercase tracking-tight">All taxes included</p>
+                </div>
+                <div class="text-2xl font-black tracking-tighter text-gray-900">
+                  INR ${invoice.grandTotal.toLocaleString('en-IN')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Final Footer -->
+        <div class="mt-auto break-inside-avoid">
+          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100 flex justify-between items-start">
+            <div class="max-w-[400px]">
+              <p class="text-[9px] font-black uppercase tracking-widest mb-3 text-gray-400">Notes & Information</p>
+              <p class="text-[10px] text-gray-500 leading-relaxed font-medium">
+                Thank you for your business. This invoice is digitally generated and valid without a physical signature.
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-[9px] font-black uppercase tracking-widest mb-3 text-gray-400">Authorized Signatory</p>
+              <div class="mb-3">
+                <p class="text-lg font-black text-gray-900 font-dancing">
+                  ${businessName}
+                </p>
+              </div>
+              <p class="text-[9px] font-black text-indigo-600 uppercase tracking-widest">${businessName} Management</p>
+            </div>
+          </div>
+          <div class="mt-6 text-center">
+            <p class="text-[8px] font-black text-gray-300 uppercase tracking-[0.4em]">
+              Generated via GSTMate Pro • Efficiency Simplified
+            </p>
           </div>
         </div>
       </div>

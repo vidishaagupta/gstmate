@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Invoice } from './invoice.model.js';
 import { User } from '../users/user.model.js';
+import { Client } from '../clients/client.model.js';
 import { generateInvoicePdf } from '../../utils/pdfGenerator.js';
 
 export const getInvoices = async (req: Request, res: Response, next: NextFunction) => {
@@ -62,8 +63,15 @@ export const previewInvoice = async (req: Request, res: Response, next: NextFunc
   try {
     const profile = await User.findOne({ isDeleted: false });
     
+    // If clientId is a string (ID), fetch the client details
+    let clientIdData = req.body.clientId;
+    if (typeof req.body.clientId === 'string') {
+      clientIdData = await Client.findById(req.body.clientId);
+    }
+    
     const pdfBuffer = await generateInvoicePdf({
       ...req.body,
+      clientId: clientIdData,
       createdAt: new Date(),
       businessName: profile?.businessName,
       businessAddress: profile?.address,
@@ -84,6 +92,25 @@ export const deleteInvoice = async (req: Request, res: Response, next: NextFunct
     const invoice = await Invoice.findByIdAndUpdate(req.params.id, { isDeleted: true }, { new: true });
     if (!invoice) return res.status(404).json({ success: false, message: 'Invoice not found' });
     res.status(200).json({ success: true, message: 'Invoice deleted' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateInvoiceStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { status } = req.body;
+    const invoice = await Invoice.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    ).populate('clientId');
+    
+    if (!invoice) {
+      return res.status(404).json({ success: false, message: 'Invoice not found' });
+    }
+    
+    res.status(200).json({ success: true, data: invoice });
   } catch (error) {
     next(error);
   }
