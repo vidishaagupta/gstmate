@@ -18,6 +18,26 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    hmr: {
+      overlay: false,
+    },
+    watch: {
+      usePolling: false,
+    },
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      '@tanstack/react-router',
+      '@tanstack/react-query',
+      'lucide-react',
+      'axios',
+      'clsx',
+      'tailwind-merge'
+    ],
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

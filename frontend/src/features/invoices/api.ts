@@ -6,6 +6,7 @@ export function useInvoices() {
   return useQuery({
     queryKey: ['invoices'],
     queryFn: () => client.get('/invoices').then(r => r.data.data),
+    staleTime: 60 * 1000, // 1 minute
   });
 }
 

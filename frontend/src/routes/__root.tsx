@@ -1,8 +1,8 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import appCss from "../styles.css?url";
+import "../styles.css";
 
 function NotFoundComponent() {
   return (
@@ -27,44 +27,11 @@ function NotFoundComponent() {
 }
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GSTMate — Simplify GST Invoicing" },
-      { name: "description", content: "Create GST-compliant invoices, track payments, and share instantly with GSTMate." },
-      { name: "author", content: "GSTMate" },
-      { property: "og:title", content: "GSTMate — Simplify GST Invoicing" },
-      { property: "og:description", content: "Create GST-compliant invoices, track payments, and share instantly." },
-      { property: "og:type", content: "website" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
 });
 
 const queryClient = new QueryClient();
-
-function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   return (

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2, Info, Loader2, Save, Download } from "lucide-react";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useClients } from "@/features/clients/api";
 import { useProducts } from "@/features/products/api";
 import { useCreateInvoice, previewInvoiceReport } from "@/features/invoices/api";
@@ -36,6 +36,18 @@ function InvoicesPage() {
   const [items, setItems] = useState<LineItem[]>([
     { id: "1", description: "", quantity: 1, price: 0, gstRate: 18 },
   ]);
+  const [debouncedPreviewData, setDebouncedPreviewData] = useState({
+    invoiceNumber,
+    items,
+    discount,
+  });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedPreviewData({ invoiceNumber, items, discount });
+    }, 500); // 500ms debounce
+    return () => clearTimeout(timer);
+  }, [invoiceNumber, items, discount]);
 
   const [isDownloading, setIsDownloading] = useState(false);
   
@@ -263,15 +275,15 @@ function InvoicesPage() {
           <div className="scale-[0.65] origin-top transform-gpu -mb-[35%]">
             <InvoiceTemplate
               id="invoice-preview"
-              invoiceNumber={invoiceNumber}
+              invoiceNumber={debouncedPreviewData.invoiceNumber}
               client={{
                 name: clientObj?.name || "Client Name",
                 state: clientObj?.state || "State",
                 email: clientObj?.email
               }}
-              items={items}
+              items={debouncedPreviewData.items}
               subtotal={calculations.subtotal}
-              discount={discount}
+              discount={debouncedPreviewData.discount}
               totalGst={calculations.totalGst}
               grandTotal={calculations.grandTotal}
               businessState={businessState}
