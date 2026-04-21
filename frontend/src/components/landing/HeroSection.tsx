@@ -1,11 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, FileText, TrendingUp, IndianRupee, Users, LayoutDashboard } from "lucide-react";
-import { useAuth } from "@/auth/AuthProvider";
+import { ArrowRight, FileText, TrendingUp, IndianRupee, Users, LayoutDashboard } from "lucide-react";
 
 export function HeroSection() {
-  const { user } = useAuth();
-
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background */}
@@ -22,42 +19,25 @@ export function HeroSection() {
 
         {/* Heading */}
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight opacity-0 animate-fade-up">
-          {user ? `Welcome back, ${user.name.split(' ')[0]}!` : "Simplify GST Invoicing."}
+          Simplify GST Invoicing.
           <br />
-          <span className="text-gradient">{user ? "Manage Your Business" : "Boost Your Business"}</span>
+          <span className="text-gradient">Boost Your Business</span>
         </h1>
 
         <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto opacity-0 animate-fade-up-delayed">
-          {user 
-            ? "Your dashboard is ready. Continue managing your invoices, tracking payments, and growing your business with GSTMate."
-            : "Create GST-compliant invoices, track payments, and share instantly — all from one beautiful dashboard."}
+          Create GST-compliant invoices, track payments, and share instantly — all from one beautiful dashboard.
         </p>
 
         {/* CTA */}
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 animate-fade-up-delayed">
-          {user ? (
-            <Button variant="hero" size="lg" asChild>
-              <Link to="/dashboard">
-                Go to Dashboard <LayoutDashboard className="ml-1 h-5 w-5" />
-              </Link>
-            </Button>
-          ) : (
-            <>
-              <Button variant="hero" size="lg" asChild>
-                <Link to="/signup">
-                  Get Started <ArrowRight className="ml-1 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button variant="hero-outline" size="lg" asChild>
-                <Link to="/login">
-                  <Play className="mr-1 h-4 w-4" /> Sign In
-                </Link>
-              </Button>
-              <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mt-4 sm:mt-0 sm:ml-4">
-                Learn More
-              </a>
-            </>
-          )}
+          <Button variant="hero" size="lg" asChild>
+            <Link to="/dashboard">
+              Go to Dashboard <LayoutDashboard className="ml-1 h-5 w-5" />
+            </Link>
+          </Button>
+          <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mt-4 sm:mt-0 sm:ml-4">
+            Learn More <ArrowRight className="ml-1 h-4 w-4 inline" />
+          </a>
         </div>
 
         {/* Floating Elements */}
@@ -99,33 +79,9 @@ export function HeroSection() {
                     <span className="font-medium">{row.inv}</span>
                     <span className="text-muted-foreground">{row.client}</span>
                     <span className="font-medium">{row.amount}</span>
-                    <span><span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${row.statusColor}`}>{row.status}</span></span>
+                    <span className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 font-bold ${row.statusColor}`}>{row.status}</span>
                   </div>
                 ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Floating cards */}
-          <div className="absolute -top-6 -left-6 glass-card p-3 animate-float hidden md:block">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-success/15 flex items-center justify-center">
-                <TrendingUp className="h-4 w-4 text-success" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Revenue</p>
-                <p className="text-sm font-bold">+23%</p>
-              </div>
-            </div>
-          </div>
-          <div className="absolute -bottom-4 -right-4 glass-card p-3 animate-float-delayed hidden md:block">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
-                <FileText className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">GST Filed</p>
-                <p className="text-sm font-bold text-primary">✓ Compliant</p>
               </div>
             </div>
           </div>

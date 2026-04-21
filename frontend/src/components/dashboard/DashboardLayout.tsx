@@ -1,7 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Receipt, LayoutDashboard, Users, Package, FileText, User, LogOut, Menu, X } from "lucide-react";
+import { Receipt, LayoutDashboard, Users, Package, FileText, User, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "@/auth/AuthProvider";
+import { useProfile } from "@/features/profile/api";
 
 const navItems = [
   { to: "/dashboard" as const, icon: LayoutDashboard, label: "Dashboard" },
@@ -14,7 +14,7 @@ const navItems = [
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { data: user } = useProfile();
 
   return (
     <div className="min-h-screen flex bg-muted/30">
@@ -67,15 +67,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
-        <div className="p-4 border-t">
-          <button
-            onClick={logout}
-            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-destructive transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </button>
-        </div>
       </aside>
 
       {/* Main */}
