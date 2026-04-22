@@ -245,7 +245,13 @@ export const initBrowser = async () => {
   if (!browserInstance) {
     browserInstance = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+      // args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+      args: [
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-dev-shm-usage',
+  '--disable-gpu'
+],
     });
   }
   return browserInstance;
