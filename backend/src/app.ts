@@ -15,9 +15,9 @@ app.use(cors({
     "https://gstmate-pi.vercel.app"
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-  exposedHeaders: ['X-Filename', 'Content-Disposition']
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  exposedHeaders: ["X-Filename", "Content-Disposition"]
 }));
 
 app.use(express.json());
