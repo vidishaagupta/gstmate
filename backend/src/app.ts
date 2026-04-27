@@ -12,7 +12,7 @@ app.use(compression()); // Compress all responses
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://gstmate2.vercel.app"
+    "https://gstmate-pi.vercel.app"
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
